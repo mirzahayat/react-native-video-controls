@@ -31,8 +31,6 @@ export default class VideoPlayer extends Component {
     volume: 1,
     title: '',
     rate: 1,
-    showTimeRemaining: true,
-    showHours: false,
   };
 
   constructor(props) {
@@ -53,8 +51,7 @@ export default class VideoPlayer extends Component {
 
       isFullscreen:
         this.props.isFullScreen || this.props.resizeMode === 'cover' || false,
-      showTimeRemaining: this.props.showTimeRemaining,
-      showHours: this.props.showHours,
+      showTimeRemaining: true,
       volumeTrackWidth: 0,
       volumeFillWidth: 0,
       seekerFillWidth: 0,
@@ -229,12 +226,10 @@ export default class VideoPlayer extends Component {
     let state = this.state;
     if (!state.scrubbing) {
       state.currentTime = data.currentTime;
-
       if (!state.seeking) {
         const position = this.calculateSeekerPosition();
         this.setSeekerPosition(position);
       }
-
       if (typeof this.props.onProgress === 'function') {
         this.props.onProgress(...arguments);
       }
@@ -549,7 +544,7 @@ export default class VideoPlayer extends Component {
   calculateTime() {
     if (this.state.showTimeRemaining) {
       const time = this.state.duration - this.state.currentTime;
-      return `-${this.formatTime(time)}`;
+      return `${this.formatTime(time)}`;
     }
 
     return this.formatTime(this.state.currentTime);
@@ -565,22 +560,10 @@ export default class VideoPlayer extends Component {
     const symbol = this.state.showRemainingTime ? '-' : '';
     time = Math.min(Math.max(time, 0), this.state.duration);
 
-    if (!this.state.showHours) {
-      const formattedMinutes = padStart(Math.floor(time / 60).toFixed(0), 2, 0);
-      const formattedSeconds = padStart(Math.floor(time % 60).toFixed(0), 2, 0);
-
-      return `${symbol}${formattedMinutes}:${formattedSeconds}`;
-    }
-
-    const formattedHours = padStart(Math.floor(time / 3600).toFixed(0), 2, 0);
-    const formattedMinutes = padStart(
-      (Math.floor(time / 60) % 60).toFixed(0),
-      2,
-      0,
-    );
+    const formattedMinutes = padStart(Math.floor(time / 60).toFixed(0), 2, 0);
     const formattedSeconds = padStart(Math.floor(time % 60).toFixed(0), 2, 0);
 
-    return `${symbol}${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+    return `${symbol}${formattedMinutes}:${formattedSeconds}`;
   }
 
   /**
@@ -1062,13 +1045,14 @@ export default class VideoPlayer extends Component {
         ]}>
         <ImageBackground
           source={require('./assets/img/bottom-vignette.png')}
-          style={[styles.controls.column]}
+          // style={[styles.controls.column]}
           imageStyle={[styles.controls.vignette]}>
-          {seekbarControl}
           <SafeAreaView
-            style={[styles.controls.row, styles.controls.bottomControlGroup]}>
+            style={[styles.controls.row,{alignItems:'center'}]}>
             {playPauseControl}
-            {this.renderTitle()}
+            <View style={{width:'75%'}}>
+            {seekbarControl}
+            </View>
             {timerControl}
           </SafeAreaView>
         </ImageBackground>
@@ -1298,10 +1282,8 @@ const styles = {
   controls: StyleSheet.create({
     row: {
       flexDirection: 'row',
-      alignItems: 'center',
+      // alignItems: 'center',
       justifyContent: 'space-between',
-      height: null,
-      width: null,
     },
     column: {
       flexDirection: 'column',
@@ -1362,7 +1344,7 @@ const styles = {
     },
     playPause: {
       position: 'relative',
-      width: 80,
+      width: 30,
       zIndex: 0,
     },
     title: {
@@ -1375,7 +1357,7 @@ const styles = {
       textAlign: 'center',
     },
     timer: {
-      width: 80,
+      width: 70,
     },
     timerText: {
       backgroundColor: 'transparent',
@@ -1417,19 +1399,20 @@ const styles = {
     container: {
       alignSelf: 'stretch',
       height: 28,
-      marginLeft: 20,
-      marginRight: 20,
+      bottom:1,
+      marginLeft: 10,
+      marginRight: 5,
     },
     track: {
       backgroundColor: '#333',
-      height: 1,
+      height: 4,
       position: 'relative',
       top: 14,
       width: '100%',
     },
     fill: {
       backgroundColor: '#FFF',
-      height: 1,
+      height: 4,
       width: '100%',
     },
     handle: {
@@ -1439,12 +1422,13 @@ const styles = {
       width: 28,
     },
     circle: {
-      borderRadius: 12,
+      borderRadius: 7,
       position: 'relative',
       top: 8,
       left: 8,
-      height: 12,
-      width: 12,
+      height: 16,
+      width: 16,
     },
   }),
 };
+
